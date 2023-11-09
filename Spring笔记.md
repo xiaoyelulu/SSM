@@ -1,3 +1,63 @@
+- [Spring 笔记](#spring-笔记)
+- [1. Spring系统架构](#1-spring系统架构)
+  - [1.1 系统架构](#11-系统架构)
+  - [1.2 Spring核心概念](#12-spring核心概念)
+    - [1.2.1 IOC（Inversion of Control）](#121-iocinversion-of-control)
+    - [1.2.2 DI（Dependency Injection）](#122-didependency-injection)
+    - [1.2.3 注解开发](#123-注解开发)
+      - [Bean的作用范围](#bean的作用范围)
+      - [Bean的生命周期](#bean的生命周期)
+  - [1.3 注解开发依赖注入](#13-注解开发依赖注入)
+    - [1.3.1 注解实现按照类型注入](#131-注解实现按照类型注入)
+    - [1.3.2 注解实现按照名称注入](#132-注解实现按照名称注入)
+    - [1.3.3 简单数据类型注入](#133-简单数据类型注入)
+    - [1.3.4 注解读取 properties 配置文件](#134-注解读取-properties-配置文件)
+      - [知识点1：@Autowired](#知识点1autowired)
+      - [知识点2：@Qualifier](#知识点2qualifier)
+      - [知识点3：@Value](#知识点3value)
+      - [知识点4：@PropertySource](#知识点4propertysource)
+  - [1.4 IOC/DI 注解开发管理第三方 bean](#14-iocdi-注解开发管理第三方-bean)
+    - [1.4.1 注解开发管理第三方 bean](#141-注解开发管理第三方-bean)
+    - [1.4.2 注解开发实现为第三方 bean 注入资源](#142-注解开发实现为第三方-bean-注入资源)
+      - [简单数据类型](#简单数据类型)
+      - [引用数据类型](#引用数据类型)
+    - [1.4.3 注解开发总结](#143-注解开发总结)
+- [2. Spring 整合](#2-spring-整合)
+  - [2.1  Spring 整合 Mybatis 思路分析](#21--spring-整合-mybatis-思路分析)
+  - [2.2 Spring 整合 Junit](#22-spring-整合-junit)
+- [3. AOP 功能与介绍](#3-aop-功能与介绍)
+  - [3.1 AOP 简介](#31-aop-简介)
+    - [3.1.1 概述](#311-概述)
+    - [3.1.2 AOP 作用](#312-aop-作用)
+    - [3.1.2 AOP核心概念](#312-aop核心概念)
+  - [3.2 AOP 入门案例](#32-aop-入门案例)
+  - [3.3 AOP 工作流程](#33-aop-工作流程)
+    - [3.3.1 初始化 bean](#331-初始化-bean)
+    - [3.3.2 获取 bean 执行方法](#332-获取-bean-执行方法)
+    - [3.3.4 AOP 核心概念](#334-aop-核心概念)
+  - [3.3 AOP 配置管理](#33-aop-配置管理)
+    - [3.3.1 语法格式](#331-语法格式)
+    - [3.3.2 通配符](#332-通配符)
+    - [3.3.3 书写技巧](#333-书写技巧)
+    - [3.3.4 AOP 通知类型](#334-aop-通知类型)
+    - [3.3.4 AOP 通知获取数据](#334-aop-通知获取数据)
+      - [1. 获取参数](#1-获取参数)
+      - [2. 获取返回值](#2-获取返回值)
+      - [3. 获取异常](#3-获取异常)
+  - [3.4 AOP 总结](#34-aop-总结)
+    - [3.4.1 AOP的核心概念](#341-aop的核心概念)
+    - [3.4.2  切入点表达式](#342--切入点表达式)
+    - [3.4.3 五种通知类型](#343-五种通知类型)
+    - [3.4.4 通知中获取参数](#344-通知中获取参数)
+- [4. AOP 事务管理](#4-aop-事务管理)
+  - [4.1 Spring 事务简介](#41-spring-事务简介)
+    - [4.1.1 概述](#411-概述)
+    - [4.1.2 事务管理具体步骤](#412-事务管理具体步骤)
+  - [4.2 Spring 事务角色](#42-spring-事务角色)
+  - [4.3 Spring 事务属性](#43-spring-事务属性)
+    - [4.3.1 事务配置](#431-事务配置)
+    - [4.3.2 事务传播行为](#432-事务传播行为)
+
 # Spring 笔记
 
 # 1. Spring系统架构
@@ -6,7 +66,7 @@ Spring Framework 是 Spring 家族中其他框架的底层基础，学好 Spring
 
 ## 1.1 系统架构
 
-<img src="C:\Users\25597\AppData\Roaming\Typora\typora-user-images\image-20231107195406503.png" alt="image-20231107195406503" style="zoom:80%;" />
+<img src="Spring笔记.assets/image-20231107195406503.png" alt="image-20231107195406503" style="zoom:80%;" />
 
 (1) 核心层
 
@@ -658,33 +718,628 @@ pom.xml
 
 ## 3.1 AOP 简介
 
+Spring有两个核心的概念，一个是`IOC/DI`，一个是`AOP`。
+
+==AOP是在不改原有代码的前提下对其进行增强。==
+
+### 3.1.1 概述
+
+* AOP (Aspect Oriented Programming) 面向切面编程，一种编程范式，指导开发者如何组织程序结构。
+  * OOP (Object Oriented Programming) 面向对象编程
+
+我们都知道OOP是一种编程思想，那么AOP也是一种编程思想，编程思想主要的内容就是指导程序员该如何编写程序，所以它们两个是不同的`编程范式`。
+
+### 3.1.2 AOP 作用
+
+作用：在不惊动原始设计的基础上为其进行功能增强，前面讲过有技术就可以实现这样的功能即代理模式。
+
+### 3.1.2 AOP核心概念
+
+Spring 到底是如何实现的呢?
+
+![1630144353462](Spring笔记.assets/1630144353462.png)
+
+* 连接点 (JoinPoint) ：程序执行过程中的任意位置，粒度为执行方法、抛出异常、设置变量等
+  * 在 SpringAOP 中，理解为方法的执行
+* 切入点 (Pointcut) : 匹配连接点的式子
+  * 在 SpringAOP 中，一个切入点可以描述一个具体方法，也可也匹配多个方法
+    * 一个具体的方法 : 如 com.itheima.dao 包下的 BookDao 接口中的无形参无返回值的 save 方法
+    * 匹配多个方法 : 所有的 save 方法，所有的 get 开头的方法，所有以 Dao 结尾的接口中的任意方法，所有带有一个参数的方法
+  * 连接点范围要比切入点范围大，是切入点的方法也一定是连接点，但是是连接点的方法就不一定要被增强，所以可能不是切入点。
+* 通知 (Advice) : 在切入点处执行的操作，也就是共性功能
+  * 在 SpringAOP 中，功能最终以方法的形式呈现
+* 通知类：定义通知的类
+* 切面 (Aspect) : 描述通知与切入点的对应关系。
+
+## 3.2 AOP 入门案例
+
+**知识点1：@EnableAspectJAutoProxy**  
+
+| 名称 | @EnableAspectJAutoProxy |
+| ---- | ----------------------- |
+| 类型 | 配置类注解              |
+| 位置 | 配置类定义上方          |
+| 作用 | 开启注解格式AOP功能     |
+
+**知识点2：@Aspect**
+
+| 名称 | @Aspect               |
+| ---- | --------------------- |
+| 类型 | 类注解                |
+| 位置 | 切面类定义上方        |
+| 作用 | 设置当前类为AOP切面类 |
+
+**知识点3：@Pointcut**   
+
+| 名称 | @Pointcut                   |
+| ---- | --------------------------- |
+| 类型 | 方法注解                    |
+| 位置 | 切入点方法定义上方          |
+| 作用 | 设置切入点方法              |
+| 属性 | value（默认）：切入点表达式 |
+
+**知识点4：@Before**
+
+| 名称 | @Before                                                      |
+| :--- | ------------------------------------------------------------ |
+| 类型 | 方法注解                                                     |
+| 位置 | 通知方法定义上方                                             |
+| 作用 | 设置当前通知方法与切入点之间的绑定关系，<br />当前通知方法在原始切入点方法前运行 |
+
+## 3.3 AOP 工作流程
+
+`AOP工作流程 `和 `AOP核心概念` 。其中核心概念是对前面核心概念的补充。
+
+### 3.3.1 初始化 bean
+
+判定 bean 对应的类中的方法是否匹配到任意切入点
+
+* 注意第 1 步在容器启动的时候，bean 对象还没有被创建成功。
+
+* 要被实例化 bean 对象的类中的方法和切入点进行匹配
+
+  ![1630152538083](Spring笔记.assets/1630152538083.png)
+
+  * 匹配失败，创建原始对象,如 `UserDao`
+    * 匹配失败说明不需要增强，直接调用原始对象的方法即可。
+  * 匹配成功，创建原始对象（==目标对象==）的==代理==对象,如: `BookDao`
+    * 匹配成功说明需要对其进行增强
+    * 对哪个类做增强，这个类对应的对象就叫做目标对象
+    * 因为要对目标对象进行功能增强，而采用的技术是动态代理，所以会为其创建一个代理对象
+    * 最终运行的是代理对象的方法，在该方法中会对原始方法进行功能增强
+
+### 3.3.2 获取 bean 执行方法
+
+* 获取的 bean 是原始对象时，调用方法并执行，完成操作
+* 获取的 bean 是代理对象时，根据代理对象的运行模式运行原始方法与增强的内容，完成操作
+* 如果目标对象中的方法会被增强，那么容器中将存入的是目标对象的代理对象
+* 如果目标对象中的方法不被增强，那么容器中将存入的是目标对象本身。
+
+**验证思路**
+
+> 1.要执行的方法，不被定义的切入点包含，即不要增强，打印当前类的 getClass() 方法
+>
+> 2.要执行的方法，被定义的切入点包含，即要增强，打印出当前类的 getClass() 方法
+
+### 3.3.4 AOP 核心概念
+
+在上面介绍 AOP 的工作流程中，有两个核心概念，分别是:
+
+* 目标对象 (Target) ：原始功能去掉共性功能对应的类产生的对象，这种对象是无法直接完成最终工作的
+* 代理 (Proxy) ：目标对象无法直接完成工作，需要对其进行功能回填，通过原始对象的代理对象实现
+
+SpringAOP 是在不改变原有设计 (代码) 的前提下对其进行增强的，它的底层采用的是代理模式实现的，所以要对原始对象进行增强，就需要对原始对象创建代理对象，在代理对象中的方法把通知  [如 : MyAdvice 中的 method 方法] 内容加进去，就实现了增强,这就是我们所说的代理 (Proxy) 。
+
+## 3.3 AOP 配置管理
+
+![1630155937718](Spring笔记.assets/1630155937718.png)
+
+对于 AOP 中切入点表达式，需要学习三个内容，分别是`语法格式`、`通配符`和`书写技巧`。
+
+### 3.3.1 语法格式
+
+* 切入点 : 要进行增强的方法
+* 切入点表达式 : 要进行增强的方法的描述方式
+
+对于切入点表达式的语法为:
+
+* 切入点表达式标准格式：动作关键字 (访问修饰符  返回值  包名.类/接口名.方法名(参数) 异常名）
+
+对于这个格式，我们不需要硬记，通过一个例子，理解它:
+
+```java
+execution(public User com.itheima.service.UserService.findById(int))
+```
+
+* execution：动作关键字，描述切入点的行为动作，例如execution表示执行到指定切入点
+* public：访问修饰符，还可以是 public，private 等，可以省略
+* User：返回值，写返回值类型
+* com.itheima.service：包名，多级包使用点连接
+* UserService: 类/接口名称
+* findById ：方法名
+* int : 参数，直接写参数的类型，多个类型用逗号隔开
+* 异常名 ：方法定义中抛出指定异常，可以省略
+
+### 3.3.2 通配符
+
+* `* `: 单个独立的任意符号，可以独立出现，也可以作为前缀或者后缀的匹配符出现
+
+  ```
+  execution（public * com.itheima.*.UserService.find*(*))
+  ```
+
+  匹配 com.itheima 包下的任意包中的 UserService 类或接口中所有 find 开头的带有一个参数的方法
+
+* `.. `：多个连续的任意符号，可以独立出现，常用于简化包名与参数的书写
+
+  ```
+  execution（public User com..UserService.findById(..))
+  ```
+
+  匹配 com 包下的任意包中的 UserService 类或接口中所有名称为 findById 的方法
+
+* `+` ：专用于匹配子类类型
+
+  ```
+  execution(* *..*Service+.*(..))
+  ```
+
+  这个使用率较低，描述子类的。*Service+，表示所有以 Service 结尾的接口的子类。
+
+### 3.3.3 书写技巧
+
+- 所有代码按照标准规范开发，否则以下技巧全部失效
+- 描述切入点通**==常描述接口==**，而不描述实现类,如果描述到实现类，就出现紧耦合了
+- 访问控制修饰符针对接口开发均采用public描述（**==可省略访问控制修饰符描述==**）
+- 返回值类型对于增删改类使用精准类型加速匹配，对于查询类使用 \* 通配快速描述
+- **==包名==**书写**==尽量不使用..匹配==**，效率过低，常用\*做单个包描述匹配，或精准匹配
+- **==接口名/类名==**书写名称与模块相关的**==采用\*匹配==**，例如UserService 书写成 \*Service，绑定业务层接口名
+- **==方法名==**书写以**==动词==**进行**==精准匹配==**，名词采用*匹配，例如 getById 书写成 getBy*，selectAll 书写成selectAll
+- 参数规则较为复杂，根据业务方法灵活调整
+- 通常**==不使用异常==**作为**==匹配==**规则
+
+### 3.3.4 AOP 通知类型
+
+- AOP通知描述了抽取的共性功能，根据共性功能抽取的位置不同，最终运行代码时要将其加入到合理的位置
+
+共提供了5种通知类型:
+
+- 前置通知
+- 后置通知
+- **==环绕通知(重点)==**
+- 返回后通知(了解)
+- 抛出异常后通知(了解)
+
+为了更好的理解这几种通知类型，我们来看一张图
+
+![1630166147697](Spring笔记.assets/1630166147697.png)
+
+1. 前置通知，追加功能到方法执行前，类似于在代码 1 或者代码 2 添加内容
+
+2. 后置通知，追加功能到方法执行后，不管方法执行的过程中有没有抛出异常都会执行，类似于在代码 5 添加内容
+
+3. 返回后通知，追加功能到方法执行后，只有方法正常执行结束后才进行，类似于在代码3添加内容，如果方法执行抛出异常，返回后通知将不会被添加
+
+4. 抛出异常后通知，追加功能到方法抛出异常后，只有方法执行出异常才进行，类似于在代码 4 添加内容，只有方法抛出异常后才会被添加
+
+5. 环绕通知，环绕通知功能比较强大，它可以追加功能到方法执行的前后，这也是比较常用的方式，它可以实现其他四种通知类型的功能
+
+```java
+@Around("pt2()")
+public void aroundSelect(ProceedingJoinPoint pjp) throws Throwable {
+    System.out.println("around before advice ...");
+    //表示对原始操作的调用
+    pjp.proceed();
+    System.out.println("around after advice ...");
+}
+```
+
+为什么返回的是 Object 而不是 int 的主要原因是 Object 类型更通用。在环绕通知中是可以对原始方法返回值就行修改的。
+
+**通知类型小结**
+
+**知识点1：@After**
+
+| 名称 | @After                                                       |
+| ---- | ------------------------------------------------------------ |
+| 类型 | 方法注解                                                     |
+| 位置 | 通知方法定义上方                                             |
+| 作用 | 设置当前通知方法与切入点之间的绑定关系，当前通知方法在原始切入点方法后运行 |
+
+**知识点2：@AfterReturning**  
+
+| 名称 | @AfterReturning                                              |
+| ---- | ------------------------------------------------------------ |
+| 类型 | 方法注解                                                     |
+| 位置 | 通知方法定义上方                                             |
+| 作用 | 设置当前通知方法与切入点之间绑定关系，当前通知方法在原始切入点方法正常执行完毕后执行 |
+
+**知识点3：@AfterThrowing**  
+
+| 名称 | @AfterThrowing                                               |
+| ---- | ------------------------------------------------------------ |
+| 类型 | 方法注解                                                     |
+| 位置 | 通知方法定义上方                                             |
+| 作用 | 设置当前通知方法与切入点之间绑定关系，当前通知方法在原始切入点方法运行抛出异常后执行 |
+
+**知识点4：@Around**
+
+| 名称 | @Around                                                      |
+| ---- | ------------------------------------------------------------ |
+| 类型 | 方法注解                                                     |
+| 位置 | 通知方法定义上方                                             |
+| 作用 | 设置当前通知方法与切入点之间的绑定关系，当前通知方法在原始切入点方法前后运行 |
+
+==**环绕通知注意事项**==
+
+1. 环绕通知必须依赖形参 ProceedingJoinPoint 才能实现对原始方法的调用，进而实现原始方法调用前后同时添加通知
+2. 通知中如果未使用 ProceedingJoinPoint 对原始方法进行调用将跳过原始方法的执行
+3. 对原始方法的调用可以不接收返回值，通知方法设置成 void 即可，如果接收返回值，最好设定为 Object 类型
+4. 原始方法的返回值如果是 void 类型，通知方法的返回值类型可以设置成 void，也可以设置成 Object
+5. 由于无法预知原始方法运行后是否会抛出异常，因此环绕通知方法必须要处理 Throwable 异常
+
+### 3.3.4 AOP 通知获取数据
+
+从 `获取参数`、`获取返回值`和 `获取异常` 三个方面来研究切入点的相关信息。
+
+* 获取切入点方法的参数，所有的通知类型都可以获取参数
+  * JoinPoint：适用于前置、后置、返回后、抛出异常后通知
+  * ProceedingJoinPoint：适用于环绕通知
+* 获取切入点方法返回值，前置和抛出异常后通知是没有返回值，后置通知可有可无，所以不做研究
+  * 返回后通知
+  * 环绕通知
+* 获取切入点方法运行异常信息，前置和返回后通知是不会有，后置通知可有可无，所以不做研究
+  * 抛出异常后通知
+  * 环绕通知
+
+#### 1. 获取参数
+
+**说明:**
+
+使用 JoinPoint 的方式获取参数适用于`前置`、`后置`、`返回后`、`抛出异常后`通知。剩下的大家自行去验证。
+
+**环绕通知获取方式**
+
+环绕通知使用的是 ProceedingJoinPoint , ProceedingJoinPoint 类中应该也会有对应的 `getArgs()` 方法
+
+**注意:**
+
+* pjp.proceed() 方法是有两个构造方法，分别是:
+
+  ![1630234756123](Spring笔记.assets/1630234756123.png)
+
+  * 调用无参数的 proceed，当原始方法有参数，会在调用的过程中自动传入参数
+
+  * 所以调用这两个方法的任意一个都可以完成功能
+
+  * 但是当需要修改原始方法的参数时，就只能采用带有参数的方法,如下:
+
+    ```java
+    @Component
+    @Aspect
+    public class MyAdvice {
+        @Pointcut("execution(* com.itheima.dao.BookDao.findName(..))")
+        private void pt(){}
+    
+        @Around("pt()")
+        public Object around(ProceedingJoinPoint pjp) throws Throwable{
+            Object[] args = pjp.getArgs();
+            System.out.println(Arrays.toString(args));
+            args[0] = 666;
+            Object ret = pjp.proceed(args);
+            return ret;
+        }
+    	//其他的略
+    }
+    ```
+
+    有了这个特性后，我们就可以在环绕通知中对原始方法的参数进行拦截过滤，避免由于参数的问题导致程序无法正确运行，保证代码的健壮性。
+
+#### 2. 获取返回值
+
+对于返回值，只有返回后 `AfterReturing` 和环绕 `Around` 这两个通知类型可以获取
+
+**环绕通知获取返回值**
+
+```java
+@Component
+@Aspect
+public class MyAdvice {
+    @Pointcut("execution(* com.itheima.dao.BookDao.findName(..))")
+    private void pt(){}
+
+    @Around("pt()")
+    public Object around(ProceedingJoinPoint pjp) throws Throwable{
+        Object[] args = pjp.getArgs();
+        System.out.println(Arrays.toString(args));
+        args[0] = 666;
+        Object ret = pjp.proceed(args);
+        return ret;
+    }
+	//其他的略
+}
+```
+
+上述代码中，`ret `就是方法的返回值，我们是可以直接获取，不但可以获取，如果需要还可以进行修改。
+
+**返回后通知获取返回值**
+
+```java
+@Component
+@Aspect
+public class MyAdvice {
+    @Pointcut("execution(* com.itheima.dao.BookDao.findName(..))")
+    private void pt(){}
+
+    @AfterReturning(value = "pt()",returning = "ret")
+    public void afterReturning(Object ret) {
+        System.out.println("afterReturning advice ..."+ret);
+    }
+	//其他的略
+}
+```
+
+==注意:==
+
+1. 参数名的问题
+
+   ![1630237320870](Spring笔记.assets/1630237320870.png)
+
+2. afterReturning 方法参数类型的问题
+
+   参数类型可以写成 String ，但是为了能匹配更多的参数类型，建议写成 Object 类型
+
+3. afterReturning 方法参数的顺序问题
+
+   ![1630237586682](Spring笔记.assets/1630237586682.png)
+
+#### 3. 获取异常
+
+对于获取抛出的异常，只有抛出异常后 `AfterThrowing` 和环绕 `Around` 这两个通知类型可以获取
+
+**环绕通知获取异常**
+
+```java
+@Component
+@Aspect
+public class MyAdvice {
+    @Pointcut("execution(* com.itheima.dao.BookDao.findName(..))")
+    private void pt(){}
+
+    @Around("pt()")
+    public Object around(ProceedingJoinPoint pjp){
+        Object[] args = pjp.getArgs();
+        System.out.println(Arrays.toString(args));
+        args[0] = 666;
+        Object ret = null;
+        try{
+            ret = pjp.proceed(args);
+        }catch(Throwable throwable){
+            t.printStackTrace();
+        }
+        return ret;
+    }
+	//其他的略
+}
+```
+
+**抛出异常后通知获取异常**
+
+```java
+@Component
+@Aspect
+public class MyAdvice {
+    @Pointcut("execution(* com.itheima.dao.BookDao.findName(..))")
+    private void pt(){}
+
+    @AfterThrowing(value = "pt()",throwing = "t")
+    public void afterThrowing(Throwable t) {
+        System.out.println("afterThrowing advice ..."+t);
+    }
+	//其他的略
+}
+```
+
+==注意:==
+
+![1630239939043](Spring笔记.assets/1630239939043.png)
+
+## 3.4 AOP 总结
+
+### 3.4.1 AOP的核心概念
+
+* 概念：AOP (Aspect Oriented Programming) 面向切面编程，一种编程范式
+* 作用：在不惊动原始设计的基础上为方法进行功能==增强==
+* 核心概念
+  * 代理（Proxy）：SpringAOP 的核心本质是采用代理模式实现的
+  * 连接点（JoinPoint）：在 SpringAOP 中，理解为任意方法的执行
+  * 切入点（Pointcut）：匹配连接点的式子，也是具有共性功能的方法描述
+  * 通知（Advice）：若干个方法的共性功能，在切入点处执行，最终体现为一个方法
+  * 切面（Aspect）：描述通知与切入点的对应关系
+  * 目标对象（Target）：被代理的原始对象成为目标对象
+
+### 3.4.2  切入点表达式
+
+* 切入点表达式标准格式：动作关键字(访问修饰符  返回值  包名.类/接口名.方法名（参数）异常名)
+
+  ```
+  execution(* com.itheima.service.*Service.*(..))
+  ```
+
+* 切入点表达式描述通配符：
+
+  * 作用：用于快速描述，范围描述
+  * `*`：匹配任意符号（常用）
+  * `..` ：匹配多个连续的任意符号（常用）
+  * `+`：匹配子类类型
+
+* 切入点表达式书写技巧
+
+  1. 按==标准规范==开发
+  2. 查询操作的返回值建议使用 \* 匹配
+  3. 减少使用 .. 的形式描述包
+  4. ==对接口进行描述==，使用\*表示模块名，例如 UserService 的匹配描述为 *Service
+  5. 方法名书写保留动词，例如 get ，使用 \* 表示名词，例如 getById 匹配描述为 getBy\*
+  6. 参数根据实际情况灵活调整
+
+### 3.4.3 五种通知类型
+
+- 前置通知
+- 后置通知
+- 环绕通知（重点）
+  - 环绕通知依赖形参 ProceedingJoinPoint 才能实现对原始方法的调用
+  - 环绕通知可以隔离原始方法的调用执行
+  - 环绕通知返回值设置为 Object 类型
+  - 环绕通知中可以对原始方法调用过程中出现的异常进行处理
+- 返回后通知
+- 抛出异常后通知
+
+### 3.4.4 通知中获取参数
+
+- 获取切入点方法的参数，所有的通知类型都可以获取参数
+  - JoinPoint：适用于前置、后置、返回后、抛出异常后通知
+  - ProceedingJoinPoint：适用于环绕通知
+- 获取切入点方法返回值，前置和抛出异常后通知是没有返回值，后置通知可有可无，所以不做研究
+  - 返回后通知
+  - 环绕通知
+- 获取切入点方法运行异常信息，前置和返回后通知是不会有，后置通知可有可无，所以不做研究
+  - 抛出异常后通知
+  - 环绕通知
+
+# 4. AOP 事务管理
+
+## 4.1 Spring 事务简介
+
+### 4.1.1 概述
+
+- 事务作用：在数据层保障一系列的数据库操作同成功同失败
+- Spring事务作用：在数据层或**==业务层==**保障一系列的数据库操作同成功同失败
+
+1. Spring 为了管理事务，提供了一个平台事务管理器 `PlatformTransactionManager`
+
+   ![1630243651541](Spring笔记.assets/1630243651541.png)
+
+2. commit 是用来提交事务，rollback 是用来回滚事务。PlatformTransactionManager 只是一个接口，Spring 还为其提供了一个具体的实现:![1630243993380](Spring笔记.assets/1630243993380.png)
+
+3. 从名称上可以看出，我们只需要给它一个 DataSource 对象，它就可以帮你去在业务层管理事务。其内部采用的是 JDBC 的事务。所以说如果你持久层采用的是 JDBC 相关的技术，就可以采用这个事务管理器来管理你的事务。而 Mybatis 内部采用的就是 JDBC 的事务，所以后期 Spring 整合 Mybatis 就采用的这个 DataSourceTransactionManager 事务管理器。
+
+### 4.1.2 事务管理具体步骤
+
+**步骤 1 : 在需要被事务管理的方法上添加注解**
+
+```java
+public interface AccountService {
+    /**
+     * 转账操作
+     * @param out 传出方
+     * @param in 转入方
+     * @param money 金额
+     */
+    //配置当前接口方法具有事务
+    public void transfer(String out,String in ,Double money) ;
+}
+
+@Service
+public class AccountServiceImpl implements AccountService {
+
+    @Autowired
+    private AccountDao accountDao;
+	@Transactional
+    public void transfer(String out,String in ,Double money) {
+        accountDao.outMoney(out,money);
+        int i = 1/0;
+        accountDao.inMoney(in,money);
+    }
+
+}
+```
+
+==注意:==
+
+@Transactional 可以写在接口类上、接口方法上、实现类上和实现类方法上
+
+* 写在接口类上，该接口的所有实现类的所有方法都会有事务
+* 写在接口方法上，该接口的所有实现类的该方法都会有事务
+* 写在实现类上，该类中的所有方法都会有事务
+* 写在实现类方法上，该方法上有事务
+* ==建议写在实现类或实现类的方法上==
+
+**知识点1：@EnableTransactionManagement**
+
+| 名称 | @EnableTransactionManagement             |
+| ---- | ---------------------------------------- |
+| 类型 | 配置类注解                               |
+| 位置 | 配置类定义上方                           |
+| 作用 | 设置当前 Spring 环境中开启注解式事务支持 |
+
+**知识点2：@Transactional**   
+
+| 名称 | @Transactional                                               |
+| ---- | ------------------------------------------------------------ |
+| 类型 | 接口注解  类注解  方法注解                                   |
+| 位置 | 业务层接口上方  业务层实现类上方  业务方法上方               |
+| 作用 | 为当前业务层方法添加事务（如果设置在类或接口上方则类或接口中所有方法均添加事务） |
+
+## 4.2 Spring 事务角色
+
+Spring 事务角色分为`事务管理员`和`事务协调员`。
+
+![1630249111055](Spring笔记.assets/1630249111055-169953422188012.png)
+
+- 事务管理员：发起事务方，在 Spring 中通常指代业务层开启事务的方法
+- 事务协调员：加入事务方，在 Spring 中通常指代数据层方法，也可以是业务层方法
+
+## 4.3 Spring 事务属性
+
+`事务配置`、`转账业务追加日志`、`事务传播行为`。
+
+### 4.3.1 事务配置
+
+![1630250069844](Spring笔记.assets/1630250069844.png)
+
+上面这些属性都可以在 `@Transactional` 注解的参数上进行设置。
+
+* readOnly：true 只读事务，false 读写事务，增删改要设为 false，查询设为 true。
+
+* timeout：设置超时时间单位秒，在多长时间之内事务没有提交成功就自动回滚，-1 表示不设置超时时间。
+
+* rollbackFor：当出现指定异常进行事务回滚
+
+* noRollbackFor：当出现指定异常不进行事务回滚
+
+  * noRollbackFor 是设定对于指定的异常不回滚
+
+  * rollbackFor 是指定回滚异常，对于异常事务不应该都回滚么，为什么还要指定？这块需要更正一个知识点，并不是所有的异常都会回滚事务
 
 
+- Spring 的事务只会对 `Error异常` 和 `RuntimeException异常` 及其子类进行事务回滚，其他的异常类型是不会回滚的，对应 IOException 不符合上述条件所以不回滚
+  - 此时就可以使用 rollbackFor 属性来设置出现 IOException 异常回滚
 
+```java
+@Transactional(rollbackFor = {IOException.class})
+    public void transfer(String out,String in ,Double money) throws IOException{}
+```
 
+* rollbackForClassName 等同于 rollbackFor， 只不过属性为异常的类全名字符串
 
+* noRollbackForClassName 等同于 noRollbackFor，只不过属性为异常的类全名字符串
 
+* isolation 设置事务的隔离级别
 
+  * DEFAULT   : 默认隔离级别，会采用数据库的隔离级别
+  * READ_UNCOMMITTED :  读未提交
+  * READ_COMMITTED :  读已提交
+  * REPEATABLE_READ :  重复读取
+  * SERIALIZABLE： 串行化
 
+### 4.3.2 事务传播行为
 
+事务传播行为：事务协调员对事务管理员所携带事务的处理态度。
 
+具体如何解决，需要用到 `propagation属性` 。
 
+**事务传播行为的可选值**
 
+![1630254257628](Spring笔记.assets/1630254257628.png)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+对于我们开发实际中使用的话，因为默认值需要事务是常态的。根据开发过程选择其他的就可以了，例如案例中需要新事务就需要手工配置。其实入账和出账操作上也有事务，采用的就是默认值。
